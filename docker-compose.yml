@@ -1,0 +1,44 @@
+version: '3.3'
+
+services:
+  postgres:
+      image: "postgres:latest"
+      ports:
+        - "5432:5432"
+      environment:
+        POSTGRES_PASSWORD: "postgres"
+        POSTGRES_USER: "postgres"
+        POSTGRES_DB: "postgres"
+      restart:
+        always
+      volumes:
+        - postgres:/data/postgres
+  pgadmin:
+    image: "dpage/pgadmin4"
+    environment:
+      PGADMIN_DEFAULT_PASSWORD: "postgres"
+      PGADMIN_DEFAULT_EMAIL: "perpes.gaudium@gmail.com"
+      PGADMIN_LISTEN_PORT: 8080
+    volumes:
+      - pgadmin:/root/.pgadmin
+    restart: unless-stopped
+
+  postboard:
+    build: .
+    command: python manage.py runserver 0.0.0.0:80
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - '.:/code'
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "postgres"
+    depends_on:
+      - postgres
+
+
+volumes:
+    postgres:
+    pgadmin:
